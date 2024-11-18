@@ -267,7 +267,7 @@
 
             console.log(JSON.stringify(data));
             // Send data via fetch (adjust URL to your endpoint)
-            fetch(`${process.env.APP_HOST}:${process.env.APP_PORT}/bucketmeta`, {
+            fetch(`${APP_HOST}:${APP_PORT}/bucketmeta`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

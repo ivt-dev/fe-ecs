@@ -300,7 +300,7 @@
 
                     init() {
                         // Fetch metadata keys on component initialization
-                        const apiUrl = `${process.env.APP_HOST}:${process.env.APP_PORT}/${bucketName}/metadata/keys/`;
+                        const apiUrl = `${APP_HOST}:${APP_PORT}/${bucketName}/metadata/keys/`;
 
                         axios.get(apiUrl)
                             .then(response => {
