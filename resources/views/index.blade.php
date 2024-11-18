@@ -153,7 +153,9 @@
 @section('script')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const apiUrl = 'http://localhost:8011/bucket';
+            const APP_HOST = env(VITE_APP_HOST);
+            const APP_PORT = env(VITE_APP_HOST);
+            const apiUrl = `${APP_HOST}:${APP_PORT}/bucket`;
             // Fetch the bucket list from the API using Axios
             axios.get(apiUrl)
                 .then(function(response) {
@@ -266,7 +268,7 @@
 
             console.log(JSON.stringify(data));
             // Send data via fetch (adjust URL to your endpoint)
-            fetch("http://localhost:8011/bucketmeta", {
+            fetch(`${process.env.APP_HOST}:${process.env.APP_PORT}/bucketmeta`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

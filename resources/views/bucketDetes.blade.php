@@ -278,6 +278,8 @@
 
     @section('script')
         <script>
+            const APP_HOST = env(VITE_APP_HOST);
+            const APP_PORT = env(VITE_APP_HOST);
             const fullPath = window.location.pathname;
             const segments = fullPath.split('/');
             const bucketName = segments[segments.length - 1];
@@ -298,7 +300,7 @@
 
                     init() {
                         // Fetch metadata keys on component initialization
-                        const apiUrl = `http://localhost:8011/${bucketName}/metadata/keys/`;
+                        const apiUrl = `${process.env.APP_HOST}:${process.env.APP_PORT}/${bucketName}/metadata/keys/`;
 
                         axios.get(apiUrl)
                             .then(response => {
@@ -390,7 +392,7 @@
                             Marker: this.Marker || null
                         };
 
-                        const apiUrl = `http://localhost:8011/bucketquery/${bucketName}`;
+                        const apiUrl = `${APP_HOST}:${APP_PORT}/bucketquery/${bucketName}`;
 
                         axios.post(apiUrl, queryJson, {
                                 headers: {
@@ -425,7 +427,7 @@
 
             var currKey = '';
             //populate table
-            const apiUrl = `http://localhost:8011/bucket/${bucketName}/items`;
+            const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/items`;
             axios.get(apiUrl)
                 .then(function(response) {
                     const items = response.data.Items;
@@ -462,7 +464,7 @@
                 });
 
             function FetchItemBasedonMetadata() {
-                const apiUrl = `http://localhost:8011/bucket/${bucketName}/items`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/items`;
                 axios.get(apiUrl)
                     .then(function(response) {
                         const items = response.data.Items;
@@ -502,7 +504,7 @@
 
 
             function fetchBucketMetadata(bucketName) {
-                const apiUrl = `http://localhost:8011/bucket/${bucketName}`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}`;
                 axios.get(apiUrl)
                     .then(function(response) {
                         const bucketData = response.data.data;
@@ -525,7 +527,7 @@
                         console.error("Error fetching bucket metadata:", error);
                         document.getElementById('bucket-info').innerHTML = '<p>Error loading bucket information.</p>';
                     });
-                const apiUrl1 = `http://localhost:8011/${bucketName}/metadata/keys/`;
+                const apiUrl1 = `${APP_HOST}:${APP_PORT}/${bucketName}/metadata/keys/`;
                 axios.get(apiUrl1)
                     .then(function(response) {
                         const bucketData = response.data; // Accessing the 'data' key in the response
@@ -550,7 +552,7 @@
             }
 
             function deleteBucket(bucketName) {
-                const apiUrl = `http://localhost:8011/bucket/${bucketName}`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}`;
 
                 axios.delete(apiUrl)
                     .then(function(response) {
@@ -575,7 +577,7 @@
                 formData.append('metadata', metadata);
 
                 // API URL for file upload
-                const apiUrl = `http://localhost:8011/bucket/${bucketName}`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}`;
 
                 // Perform the file upload via POST request
                 axios.post(apiUrl, formData, {
@@ -596,7 +598,7 @@
             }
 
             function viewMetadata(key, bucketName) {
-                const apiUrl = `http://localhost:8011/bucket/${bucketName}/${key}/metadata`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${key}/metadata`;
 
                 axios.get(apiUrl)
                     .then(function(response) {
@@ -643,7 +645,7 @@
 
                     const metadata = (metadataJson);
 
-                    const apiUrl = `http://localhost:8011/bucket/${bucketName}/${currKey}/metadata`;
+                    const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${currKey}/metadata`;
 
                     axios.put(apiUrl, {
                             Metadata: metadata
@@ -663,7 +665,7 @@
             }
 
             function viewVersions(itemKey, bucketName) {
-                const apiUrl = `http://localhost:8011/bucket/${bucketName}/${itemKey}/versions`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${itemKey}/versions`;
 
                 axios.get(apiUrl)
                     .then(response => {
@@ -697,7 +699,7 @@
             }
 
             function deleteItem(itemKey, bucketName) {
-                const apiUrl = `http://localhost:8011/bucket/${bucketName}/${itemKey}/delete`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${itemKey}/delete`;
 
                 if (confirm('Are you sure you want to delete this item?')) {
                     axios.delete(apiUrl)
@@ -730,7 +732,7 @@
                     return;
                 }
 
-                const apiUrl = `http://localhost:8011/bucket/${selectedBucketName}/${selectedItemKey}/presigned`;
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${selectedBucketName}/${selectedItemKey}/presigned`;
 
                 axios.post(apiUrl, {
                         Duration: parseInt(duration)
