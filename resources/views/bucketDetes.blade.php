@@ -418,13 +418,6 @@
                 }
             }
 
-
-
-
-
-
-
-
             var currKey = '';
             //populate table
             const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/items`;
