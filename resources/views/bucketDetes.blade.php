@@ -278,8 +278,8 @@
 
     @section('script')
         <script>
-            const APP_HOST = env(VITE_APP_HOST);
-            const APP_PORT = env(VITE_APP_HOST);
+            const APP_HOST = "{{ env('VITE_APP_HOST', 'http://localhost') }}";
+            const APP_PORT = "{{ env('VITE_APP_PORT', '8011') }}";
             const fullPath = window.location.pathname;
             const segments = fullPath.split('/');
             const bucketName = segments[segments.length - 1];

@@ -153,10 +153,9 @@
 @section('script')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const APP_HOST = env(VITE_APP_HOST);
-            const APP_PORT = env(VITE_APP_HOST);
+            const APP_HOST = "{{ env('VITE_APP_HOST', 'http://localhost') }}";
+            const APP_PORT = "{{ env('VITE_APP_PORT', '8011') }}";
             const apiUrl = `${APP_HOST}:${APP_PORT}/bucket`;
-            // Fetch the bucket list from the API using Axios
             axios.get(apiUrl)
                 .then(function(response) {
                     const buckets = response.data.Buckets;
