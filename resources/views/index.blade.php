@@ -229,6 +229,8 @@
         //         });
         // }
         function addBucket() {
+            const APP_HOST = "{{ env('VITE_APP_HOST', 'http://localhost') }}";
+            const APP_PORT = "{{ env('VITE_APP_PORT', '8011') }}";
             // Get bucket name and versioning status
             const bucketName = document.getElementById("bucketName").value;
             const isVersioning = document.getElementById("isVersioning").value;
