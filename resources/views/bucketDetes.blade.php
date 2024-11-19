@@ -546,15 +546,18 @@
 
             function deleteBucket(bucketName) {
                 const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}`;
-
-                axios.delete(apiUrl)
-                    .then(function(response) {
-                        const bucketData = response.data.data;
-                        window.location.href = '/';
-                    })
-                    .catch(function(error) {
-                        console.error("Error deleting bucket information.", error);
-                    });
+                if (confirm('Are you sure you want to delete this item?')) {
+                    axios.delete(apiUrl)
+                        .then(function(response) {
+                            const bucketData = response.data.data;
+                            alert('Bucket Successfully Deleted');
+                            window.location.href = '/';
+                        })
+                        .catch(function(error) {
+                            console.error("Error deleting bucket information.", error);
+                            alert('Error Deleting Bucket');
+                        });
+                }
             }
 
             function uploadFile(bucketName) {
@@ -650,7 +653,7 @@
                         })
                         .catch(error => {
                             console.error('Error updating metadata:', error);
-                            alert("Failed to update metadata. Please try again."); // User-friendly error message
+                            alert("Failed to update metadata. Please try again.");
                         });
                 } catch (e) {
                     alert("Invalid JSON format. Please correct it.");

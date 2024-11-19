@@ -235,6 +235,11 @@
             const bucketName = document.getElementById("bucketName").value;
             const isVersioning = document.getElementById("isVersioning").value;
 
+            if (bucketName.length < 3) {
+                alert("Bucket name must be 3 word or higher");
+                return 0;
+            }
+
             // Collect metadata fields
             const metadataItems = document.querySelectorAll("#metadataContainer .metadata-item");
             const metadata = {};
