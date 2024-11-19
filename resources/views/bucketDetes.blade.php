@@ -216,7 +216,7 @@
     <!-- Modal for Viewing Versions -->
     <div class="modal fade" id="viewVersionsModal" tabindex="-1" role="dialog"
         aria-labelledby="viewVersionsModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="viewVersionsModalLabel">File Versions</h5>
@@ -224,7 +224,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body container-fluid">
                     <table class="table">
                         <thead>
                             <tr>
@@ -232,6 +232,7 @@
                                 <th>Last Modified</th>
                                 <th>Size (bytes)</th>
                                 <th>Is Latest</th>
+                                <th>Metadata</th>
                             </tr>
                         </thead>
                         <tbody id="versionsTableBody">
@@ -667,6 +668,7 @@
                     .then(response => {
                         const versions = response.data;
                         const tableBody = document.getElementById('versionsTableBody');
+                        console.log(versions);
 
                         // Clear previous rows
                         tableBody.innerHTML = '';
@@ -675,12 +677,21 @@
                         versions.forEach(version => {
                             const row = document.createElement('tr');
 
+                            let metadataContent = "";
+
+                            if (version.Metadata && Object.keys(version.Metadata).length > 0) {
+                                metadataContent = version.Metadata.Keys;
+                            } else {
+                                metadataContent = "No Metadata";
+                            }
+
                             row.innerHTML = `
                     <td>${version.VersionId}</td>
                     <td>${new Date(version.LastModified).toLocaleString()}</td>
                     <td>${version.Size}</td>
                     <td>${version.IsLatest ? 'Yes' : 'No'}</td>
-                `;
+                    <td>${metadataContent}</td>
+                            `;
 
                             tableBody.appendChild(row);
                         });
