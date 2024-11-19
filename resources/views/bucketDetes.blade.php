@@ -301,11 +301,11 @@
 
                     init() {
                         // Fetch metadata keys on component initialization
-                        const apiUrl = `${APP_HOST}:${APP_PORT}/${bucketName}/metadata/keys/`;
+                        const apiUrl = `${APP_HOST}:${APP_PORT}/${bucketName}/indexedmetadata`;
 
                         axios.get(apiUrl)
                             .then(response => {
-                                this.metadataKeys = response.data.MetadataKeys || {};
+                                this.metadataKeys = response.data.metadata || {};
                                 console.log("Fetched metadataKeys:", this.metadataKeys);
                                 if (Object.keys(this.metadataKeys).length > 0) {
                                     const firstKey = Object.keys(this.metadataKeys)[0];
