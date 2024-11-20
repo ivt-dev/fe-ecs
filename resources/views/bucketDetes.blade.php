@@ -148,10 +148,33 @@
                             <label for="file">Choose file</label>
                             <input type="file" class="form-control-file" id="file" required>
                         </div>
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label for="metadata">Metadata (JSON format)</label>
                             <textarea class="form-control" id="metadata" placeholder='{"Key1": "Value1", "Key2": "Value2"}'></textarea>
+                        </div> --}}
+
+                        {{-- metadata --}}
+                        <div x-data="metadataForm()" id="uploadModalContent">
+                            <label for="">Metadata Section</label>
+                            <div id="metadataContainer">
+                                <template x-for="(item, index) in metadata" :key="index">
+                                    <div class="form-group row metadata-item">
+                                        <div class="col-sm-6 px-2">
+                                            <input type="text" class="form-control metadata-key-upload"
+                                                x-model="item.key" placeholder="Enter metadata name">
+                                        </div>
+                                        <div class="col-sm-6 px-1">
+
+                                            <input type="text" class="form-control metadata-value-upload"
+                                                x-model="item.value" placeholder="Enter metadata value">
+
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" class="btn btn-primary" @click="addMetadata()">More Metadata</button>
                         </div>
+
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -197,9 +220,27 @@
                 <div class="modal-body">
                     <form id="editMetadataForm">
                         <div class="form-group">
-                            <label for="metadata">Metadata (JSON format)</label>
-                            <textarea class="form-control" id="metadata-2" rows="4" placeholder='{"Key1": "Value1", "Key2": "Value2"}'
-                                required></textarea>
+                            <div x-data="metadataFormUpdate()" id="uploadModalContent">
+                                <label for="">Metadata Section</label>
+                                <div id="metadataContainer">
+                                    <template x-for="(item, index) in metadata" :key="index">
+                                        <div class="form-group row metadata-item">
+                                            <div class="col-sm-6 px-2">
+                                                <input type="text" class="form-control metadata-key-update"
+                                                    x-model="item.key" placeholder="Enter metadata name">
+                                            </div>
+                                            <div class="col-sm-6 px-1">
+
+                                                <input type="text" class="form-control metadata-value-update"
+                                                    x-model="item.value" placeholder="Enter metadata value">
+
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                                <button type="button" class="btn btn-primary" @click="addMetadataUpload()">More
+                                    Metadata</button>
+                            </div>
 
                         </div>
                     </form>
@@ -418,6 +459,88 @@
                     }
                 }
             }
+            // alpineJS metadata button to make new metadata
+            function metadataForm() {
+                return {
+                    metadata: [{
+                        key: '',
+                        value: ''
+                    }], // Initialize the metadata array
+
+                    addMetadata() {
+                        // Add a new empty metadata field
+                        this.metadata.push({
+                            key: '',
+                            value: ''
+                        });
+                    }
+                };
+            }
+            // alpineJS metadata button to update metadata
+            function metadataFormUpdate() {
+                return {
+                    metadata: [{
+                        key: '',
+                        value: ''
+                    }], // Initialize the metadata array
+
+                    addMetadataUpload() {
+                        // Add a new empty metadata field
+                        this.metadata.push({
+                            key: '',
+                            value: ''
+                        });
+                    }
+                };
+            }
+
+            function uploadFile(bucketName) {
+                // Get the form elements
+                const key = document.getElementById('key').value;
+                const file = document.getElementById('file').files[0];
+                const metadataKeys = document.querySelectorAll('.metadata-key-upload');
+                const metadataValues = document.querySelectorAll('.metadata-value-upload');
+
+                const metadata = {};
+
+                metadataKeys.forEach((keyElement, index) => {
+                    const valueElement = metadataValues[index];
+                    if (keyElement.value && valueElement.value) {
+                        // Add to the metadata object, using the key as the object key
+                        metadata[keyElement.value] = valueElement.value;
+                    }
+                });
+
+                const metadataJson = JSON.stringify(metadata);
+
+                console.log(metadataJson);
+
+                // Create FormData to send via Axios
+                const formData = new FormData();
+                formData.append('key', key);
+                formData.append('file', file);
+                formData.append('metadata', metadataJson);
+
+                // API URL for file upload
+                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}`;
+
+                // Perform the file upload via POST request
+                axios.post(apiUrl, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then(response => {
+                        // Handle success response (e.g., show success message)
+                        alert('File uploaded successfully! Version ID: ' + response.data.VersionId);
+                        location.reload();
+                    })
+                    .catch(error => {
+                        // Handle error response
+                        console.error('Error uploading file:', error);
+                        alert('Failed to upload file. Please try again.');
+                    });
+            }
 
             var currKey = '';
             //populate table
@@ -443,7 +566,8 @@
                                 <i class="fas fa-eye fa-fw" onclick="viewMetadata('${item.Key}','${bucketName}')"></i>
                                 <i class="fas fa-book fa-fw" onclick="viewVersions('${item.Key}', '${bucketName}')"></i>
                                 <i class="fas fa-trash fa-sm" onclick="deleteItem('${item.Key}', '${bucketName}')"></i>
-                               <i class="fas fa-link fa-sm" onclick="showPresignedUrlModal('${item.Key}', '${bucketName}')"></i>
+                                <i class="fas fa-link fa-sm" onclick="showPresignedUrlModal('${item.Key}', '${bucketName}')"></i>
+                                <i class="fas fa-download fa-fw" onclick="downloadFile('${bucketName}', '${item.Key}')"></i>
                             </td>
                         </tr>
                     `;
@@ -495,8 +619,6 @@
                     });
             }
 
-
-
             function fetchBucketMetadata(bucketName) {
                 const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}`;
                 axios.get(apiUrl)
@@ -512,7 +634,7 @@
                 <p><strong>Owner Display Name:</strong> ${bucketData.Owner.DisplayName}</p>
                 <p><strong>Owner ID:</strong> ${bucketData.Owner.Id}</p>
                 <p><strong>Versioning:</strong> ${bucketData.Versioning.Value}</p>
-            `;
+                `;
 
                         // Display the formatted metadata in the modal body
                         bucketInfoElement.innerHTML = metadataHtml;
@@ -561,39 +683,6 @@
                 }
             }
 
-            function uploadFile(bucketName) {
-                // Get the form elements
-                const key = document.getElementById('key').value;
-                const file = document.getElementById('file').files[0];
-                const metadata = document.getElementById('metadata').value;
-
-                // Create FormData to send via Axios
-                const formData = new FormData();
-                formData.append('key', key);
-                formData.append('file', file);
-                formData.append('metadata', metadata);
-
-                // API URL for file upload
-                const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}`;
-
-                // Perform the file upload via POST request
-                axios.post(apiUrl, formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    })
-                    .then(response => {
-                        // Handle success response (e.g., show success message)
-                        alert('File uploaded successfully! Version ID: ' + response.data.VersionId);
-                        location.reload();
-                    })
-                    .catch(error => {
-                        // Handle error response
-                        console.error('Error uploading file:', error);
-                        alert('Failed to upload file. Please try again.');
-                    });
-            }
-
             function viewMetadata(key, bucketName) {
                 const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${key}/metadata`;
 
@@ -624,33 +713,39 @@
             }
 
             function editMetadataModal(itemKey) {
-                // Clear the textarea for new metadata input
-                document.getElementById('metadata').value = '';
-                // Store the itemKey in a global variable (or use a more secure method)
                 currKey = itemKey;
                 window.currentItemKey = itemKey;
-                // Show the modal
                 $('#editMetadataModal').modal('show');
             }
 
             function editMetadata(bucketName) {
-                const metadataJson = document.getElementById('metadata-2').value;
-                console.log('metadata');
+                const metadataKeys = document.querySelectorAll('.metadata-key-update');
+                const metadataValues = document.querySelectorAll('.metadata-value-update');
+
+                const metadata = {};
+
+                metadataKeys.forEach((keyElement, index) => {
+                    const valueElement = metadataValues[index];
+                    if (keyElement.value && valueElement.value) {
+                        // Add to the metadata object, using the key as the object key
+                        metadata[keyElement.value] = valueElement.value;
+                    }
+                });
+                const metadataJson = JSON.stringify(metadata);
                 console.log(metadataJson);
-                // Validate JSON format
+
                 try {
-
-                    const metadata = (metadataJson);
-
                     const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${currKey}/metadata`;
 
                     axios.put(apiUrl, {
-                            Metadata: metadata
+                            Metadata: metadataJson
                         })
                         .then(response => {
                             console.log('Metadata updated:', response.data);
                             $('#editMetadataModal').modal('hide');
                             // Optionally refresh the metadata or table here
+                            alert("Update Successful with version id:" +
+                                response.data.VersionId);
                         })
                         .catch(error => {
                             console.error('Error updating metadata:', error);
@@ -756,6 +851,18 @@
                         console.error('Error generating presigned URL:', error);
                         alert('Failed to generate presigned URL. Please try again.');
                     });
+            }
+
+            function downloadFile(bucketName, key) {
+                // Construct the URL for the download endpoint
+                const downloadUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${key}/download`;
+                // Create a temporary link to trigger the download
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = key;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         </script>
     @endsection
