@@ -532,7 +532,15 @@
 
                         axios.get(apiUrl)
                             .then(response => {
-                                this.metadataKeys = response.data.metadata || {};
+                                // this.metadataKeys = response.data.metadata || {};
+                                const metadata = response.data.metadata || {};
+
+                                Object.keys(metadata).forEach(key => {
+                                    if (key.startsWith("x-amz-meta-")) {
+                                        this.metadataKeys[key] = metadata[key];
+                                    }
+                                });
+
                                 console.log("Fetched metadataKeys:", this.metadataKeys);
                                 if (Object.keys(this.metadataKeys).length > 0) {
                                     const firstKey = Object.keys(this.metadataKeys)[0];
@@ -581,7 +589,15 @@
 
                         axios.get(apiUrl)
                             .then(response => {
-                                this.metadataKeys = response.data.metadata || {};
+                                // this.metadataKeys = response.data.metadata || {};
+                                const metadata = response.data.metadata || {};
+
+                                Object.keys(metadata).forEach(key => {
+                                    if (key.startsWith("x-amz-meta-")) {
+                                        this.metadataKeys[key] = metadata[key];
+                                    }
+                                });
+
                                 console.log("Fetched metadataKeys:", this.metadataKeys);
                                 if (Object.keys(this.metadataKeys).length > 0) {
                                     const firstKey = Object.keys(this.metadataKeys)[0];
