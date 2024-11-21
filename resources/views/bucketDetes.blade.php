@@ -172,7 +172,29 @@
                                     </div>
                                 </template>
                             </div>
+                            {{-- This is for bucket metadata --}}
+                            <label for="">Metadata Bucket Section</label>
+                            <div id="metadataContainer">
+                                <template x-for="(item, index) in metadataBucket" :key="index">
+                                    <div class="form-group row metadata-item">
+                                        <div class="col-sm-6 px-2">
+                                            <select class="form-select metadata-key-upload" id="field-select"
+                                                name="metadataField">
+                                                <template x-for="(value, key) in metadataKeys" :key="key">
+                                                    <option x-bind:value="key" x-text="key"></option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-6 px-1">
+                                            <input type="text" class="form-control metadata-value-upload"
+                                                x-model="item.value" placeholder="Enter metadata value">
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
                             <button type="button" class="btn btn-primary" @click="addMetadata()">More Metadata</button>
+                            <button type="button" class="btn btn-primary" @click="addMetadataBucket()">Bucket
+                                Metadata</button>
                         </div>
 
                     </form>
@@ -237,8 +259,30 @@
                                             </div>
                                         </div>
                                     </template>
+                                    <label for="">Metadata Bucket Section</label>
+                                    <div id="metadataContainer">
+                                        <template x-for="(item, index) in metadataBucket" :key="index">
+                                            <div class="form-group row metadata-item">
+                                                <div class="col-sm-6 px-2">
+                                                    <select class="form-select metadata-key-update" id="field-select"
+                                                        name="metadataField">
+                                                        <template x-for="(value, key) in metadataKeys"
+                                                            :key="key">
+                                                            <option x-bind:value="key" x-text="key"></option>
+                                                        </template>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-6 px-1">
+                                                    <input type="text" class="form-control metadata-value-update"
+                                                        x-model="item.value" placeholder="Enter metadata value">
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
-                                <button type="button" class="btn btn-primary" @click="addMetadataUpload()">More
+                                <button type="button" class="btn btn-primary" @click="addMetadataUpdate()">More
+                                    Metadata</button>
+                                <button type="button" class="btn btn-primary" @click="addMetadataBucketUpdate()">Bucket
                                     Metadata</button>
                             </div>
 
@@ -462,10 +506,17 @@
             // alpineJS metadata button to make new metadata
             function metadataForm() {
                 return {
+                    metadataKeys: {},
+
                     metadata: [{
                         key: '',
                         value: ''
-                    }], // Initialize the metadata array
+                    }],
+
+                    metadataBucket: [{
+                        key: '',
+                        value: ''
+                    }],
 
                     addMetadata() {
                         // Add a new empty metadata field
@@ -473,21 +524,79 @@
                             key: '',
                             value: ''
                         });
+                    },
+
+                    init() {
+                        // Fetch metadata keys on component initialization
+                        const apiUrl = `${APP_HOST}:${APP_PORT}/${bucketName}/indexedmetadata`;
+
+                        axios.get(apiUrl)
+                            .then(response => {
+                                this.metadataKeys = response.data.metadata || {};
+                                console.log("Fetched metadataKeys:", this.metadataKeys);
+                                if (Object.keys(this.metadataKeys).length > 0) {
+                                    const firstKey = Object.keys(this.metadataKeys)[0];
+                                    this.queries[0].metadataKey = firstKey;
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error fetching bucket metadata:", error);
+                            });
+                    },
+
+                    addMetadataBucket() {
+                        const firstKey = Object.keys(this.metadataKeys)[0];
+                        this.metadataBucket.push({
+                            key: firstKey,
+                            value: ''
+                        });
                     }
                 };
             }
+
             // alpineJS metadata button to update metadata
             function metadataFormUpdate() {
                 return {
+                    metadataKeys: {},
                     metadata: [{
                         key: '',
                         value: ''
-                    }], // Initialize the metadata array
 
-                    addMetadataUpload() {
+                    }], // Initialize the metadata array
+                    metadataBucket: [{
+                        key: '',
+                        value: ''
+                    }],
+                    addMetadataUpdate() {
                         // Add a new empty metadata field
                         this.metadata.push({
                             key: '',
+                            value: ''
+                        });
+                    },
+
+                    init() {
+                        // Fetch metadata keys on component initialization
+                        const apiUrl = `${APP_HOST}:${APP_PORT}/${bucketName}/indexedmetadata`;
+
+                        axios.get(apiUrl)
+                            .then(response => {
+                                this.metadataKeys = response.data.metadata || {};
+                                console.log("Fetched metadataKeys:", this.metadataKeys);
+                                if (Object.keys(this.metadataKeys).length > 0) {
+                                    const firstKey = Object.keys(this.metadataKeys)[0];
+                                    this.queries[0].metadataKey = firstKey;
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error fetching bucket metadata:", error);
+                            });
+                    },
+
+                    addMetadataBucketUpdate() {
+                        const firstKey = Object.keys(this.metadataKeys)[0];
+                        this.metadataBucket.push({
+                            key: firstKey,
                             value: ''
                         });
                     }
@@ -514,7 +623,7 @@
                 const metadataJson = JSON.stringify(metadata);
 
                 console.log(metadataJson);
-
+                // return 0;
                 // Create FormData to send via Axios
                 const formData = new FormData();
                 formData.append('key', key);
@@ -733,7 +842,7 @@
                 });
                 const metadataJson = JSON.stringify(metadata);
                 console.log(metadataJson);
-
+                // return 0;
                 try {
                     const apiUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${currKey}/metadata`;
 
