@@ -318,6 +318,7 @@
                                 <th>Size (bytes)</th>
                                 <th>Is Latest</th>
                                 <th>Metadata</th>
+                                <th>Download</th>
                             </tr>
                         </thead>
                         <tbody id="versionsTableBody">
@@ -729,7 +730,7 @@
                                 <i class="fas fa-eye fa-fw" onclick="viewMetadata('${item.Key}','${bucketName}')"></i>
                                 <i class="fas fa-book fa-fw" onclick="viewVersions('${item.Key}', '${bucketName}')"></i>
                                 <i class="fas fa-trash fa-sm" onclick="deleteItem('${item.Key}', '${bucketName}')"></i>
-                               <i class="fas fa-link fa-sm" onclick="showPresignedUrlModal('${item.Key}', '${bucketName}')"></i>
+                                <i class="fas fa-link fa-sm" onclick="showPresignedUrlModal('${item.Key}', '${bucketName}')"></i>
                             </td>
                         </tr>
                     `;
@@ -900,7 +901,9 @@
                             let metadataContent = "";
 
                             if (version.Metadata && Object.keys(version.Metadata).length > 0) {
-                                metadataContent = version.Metadata.Keys;
+                                const metadataEntries = Object.entries(version.Metadata);
+                                metadataContent = metadataEntries.map(([key, value]) => `${key}: ${value}`).join(
+                                    ", ");
                             } else {
                                 metadataContent = "No Metadata";
                             }
@@ -911,7 +914,8 @@
                     <td>${version.Size}</td>
                     <td>${version.IsLatest ? 'Yes' : 'No'}</td>
                     <td>${metadataContent}</td>
-                            `;
+                    <td><i class="fas fa-download fa-fw" onclick="downloadFileVersion('${bucketName}', '${itemKey}', ${version.VersionId})"></i></td>
+                    `;
 
                             tableBody.appendChild(row);
                         });
@@ -981,6 +985,18 @@
             function downloadFile(bucketName, key) {
                 // Construct the URL for the download endpoint
                 const downloadUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${key}/download`;
+                // Create a temporary link to trigger the download
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = key;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            function downloadFileVersion(bucketName, key, version_id) {
+                // Construct the URL for the download endpoint
+                const downloadUrl = `${APP_HOST}:${APP_PORT}/bucket/${bucketName}/${key}/${version_id}/download`;
                 // Create a temporary link to trigger the download
                 const link = document.createElement('a');
                 link.href = downloadUrl;
